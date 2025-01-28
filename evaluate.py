@@ -1,9 +1,10 @@
 import argparse
 import numpy as np
+import os
 
 from keras.models import load_model
 from sklearn.preprocessing import MinMaxScaler
-from sklearn.externals import joblib
+# from sklearn.externals import joblib
 
 from dataset import *
 from util import *
@@ -11,8 +12,9 @@ from model import *
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument('dataset', choices=['oxiod', 'euroc'], help='Training dataset name (\'oxiod\' or \'euroc\')')
-    parser.add_argument('model', help='Model path')
+    parser.add_argument('--dataset', choices=['oxiod', 'euroc'], help='Training dataset name (\'oxiod\' or \'euroc\')')
+    parser.add_argument('--model', help='Model path')
+    parser.add_argument('--dataset_path', help='Model path')
     args = parser.parse_args()
 
     model = load_model(args.model)
@@ -52,6 +54,9 @@ def main():
         gt_data_filenames.append('V1_03_difficult/mav0/state_groundtruth_estimate0/data.csv')
         gt_data_filenames.append('V2_02_medium/mav0/state_groundtruth_estimate0/data.csv')
         gt_data_filenames.append('V1_01_easy/mav0/state_groundtruth_estimate0/data.csv')
+
+    imu_data_filenames = [os.path.join(args.dataset_path, file_name) for file_name in imu_data_filenames]
+    gt_data_filenames = [os.path.join(args.dataset_path, file_name) for file_name in gt_data_filenames]
 
     for (cur_imu_data_filename, cur_gt_data_filename) in zip(imu_data_filenames, gt_data_filenames):
         if args.dataset == 'oxiod':

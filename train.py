@@ -1,3 +1,5 @@
+import os.path
+
 import numpy as np
 import matplotlib.pyplot as plt
 import argparse
@@ -16,8 +18,11 @@ from util import *
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument('dataset', choices=['oxiod', 'euroc'], help='Training dataset name (\'oxiod\' or \'euroc\')')
-    parser.add_argument('output', help='Model output name')
+    parser.add_argument('--dataset_path', type=str, help='Training dataset path')
+    parser.add_argument('--epochs', type=int, help='Training Epochs number')
+    parser.add_argument('--batchsize', type=int, help='Training batch size number')
+    parser.add_argument('--dataset', choices=['oxiod', 'euroc'], help='Training dataset name (\'oxiod\' or \'euroc\')')
+    parser.add_argument('--output', help='Model output name')
     args = parser.parse_args()
 
     np.random.seed(0)
@@ -86,6 +91,9 @@ def main():
         gt_data_filenames.append('V2_01_easy/mav0/state_groundtruth_estimate0/data.csv')
         gt_data_filenames.append('V2_03_difficult/mav0/state_groundtruth_estimate0/data.csv')
 
+    imu_data_filenames = [os.path.join(args.dataset_path,file_name) for file_name in imu_data_filenames]
+    gt_data_filenames = [os.path.join(args.dataset_path, file_name) for file_name in gt_data_filenames]
+
     for i, (cur_imu_data_filename, cur_gt_data_filename) in enumerate(zip(imu_data_filenames, gt_data_filenames)):
         if args.dataset == 'oxiod':
             cur_gyro_data, cur_acc_data, cur_pos_data, cur_ori_data = load_oxiod_dataset(cur_imu_data_filename, cur_gt_data_filename)
@@ -115,7 +123,7 @@ def main():
     model_checkpoint = ModelCheckpoint('model_checkpoint.hdf5', monitor='val_loss', save_best_only=True, verbose=1)
     tensorboard = TensorBoard(log_dir="logs/{}".format(time()))
 
-    history = train_model.fit([x_gyro, x_acc, y_delta_p, y_delta_q], epochs=500, batch_size=32, verbose=1, callbacks=[model_checkpoint, tensorboard], validation_split=0.1)
+    history = train_model.fit([x_gyro, x_acc, y_delta_p, y_delta_q], epochs=args.epochs, batch_size=args.batchsize, verbose=1, callbacks=[model_checkpoint, tensorboard], validation_split=0.1)
 
     train_model = load_model('model_checkpoint.hdf5', custom_objects={'CustomMultiLossLayer':CustomMultiLossLayer}, compile=False)
 

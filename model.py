@@ -44,7 +44,7 @@ class CustomMultiLossLayer(Layer):
         # initialise log_vars
         self.log_vars = []
         for i in range(self.nb_outputs):
-            self.log_vars += [self.add_weight(name='log_var' + str(i), shape=(1,),
+            self.log_vars += [self.add_weight(name='log_var' + str(i), shape=(2,),
                                               initializer=Constant(0.), trainable=True)]
         super(CustomMultiLossLayer, self).build(input_shape)
 

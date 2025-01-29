@@ -1,12 +1,13 @@
 import tfquaternion as tfq
 import tensorflow as tf
+import tensorflow.keras.backend as K
 
 from keras.models import Sequential, Model
-from keras.layers import Bidirectional, LSTM, CuDNNLSTM, Dropout, Dense, Input, Layer, Conv1D, MaxPooling1D, concatenate
+from keras.layers import Bidirectional, LSTM, Dropout, Dense, Input, Layer, Conv1D, MaxPooling1D, concatenate
 from keras.initializers import Constant
 from keras.optimizers import Adam
 from keras.losses import mean_absolute_error
-from keras import backend as K
+# from keras import backend as K
 
 def quaternion_phi_3_error(y_true, y_pred):
     return tf.acos(K.abs(K.batch_dot(y_true, K.l2_normalize(y_pred, axis=-1), axes=-1)))

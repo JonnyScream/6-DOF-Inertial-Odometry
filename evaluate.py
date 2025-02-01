@@ -75,9 +75,10 @@ def main():
         elif args.dataset == 'euroc':
             dummy_y_delta_p = np.zeros_like(x_gyro)[:,0]
             dummy_y_delta_q = np.zeros([x_acc.shape[0],4])
-            out = model.predict([x_gyro, x_acc,dummy_y_delta_p,dummy_y_delta_q], batch_size=1, verbose=0)
+            # out = model.predict([x_gyro, x_acc,dummy_y_delta_p,dummy_y_delta_q], batch_size=1, verbose=0)
+            out = model.predict([x_gyro, x_acc], batch_size=1, verbose=0)
 
-        yhat_delta_p, yhat_delta_q = out[:,7:10], out[:,10:]
+        yhat_delta_p, yhat_delta_q = out[0], out[1]
         gt_trajectory = generate_trajectory_6d_quat(init_p, init_q, y_delta_p, y_delta_q)
         pred_trajectory = generate_trajectory_6d_quat(init_p, init_q, yhat_delta_p, yhat_delta_q)
 

@@ -68,19 +68,16 @@ def main():
         elif args.dataset == 'euroc':
             gyro_data, acc_data, pos_data, ori_data = load_euroc_mav_dataset(cur_imu_data_filename_full, cur_gt_data_filename_full)
 
-        [x_gyro, x_acc], [y_delta_p, y_delta_q], init_p, init_q = load_dataset_6d_quat(gyro_data, acc_data, pos_data, ori_data, window_size, stride)
+        [x_gyro, x_acc], [y_delta_p, init_p] = load_dataset_6d_quat(gyro_data, acc_data, pos_data, ori_data, window_size, stride)
         
         if args.dataset == 'oxiod':
             [yhat_delta_p, yhat_delta_q] = model.predict([x_gyro[0:200, :, :], x_acc[0:200, :, :]], batch_size=1, verbose=0)
         elif args.dataset == 'euroc':
-            dummy_y_delta_p = np.zeros_like(x_gyro)[:,0]
-            dummy_y_delta_q = np.zeros([x_acc.shape[0],4])
-            # out = model.predict([x_gyro, x_acc,dummy_y_delta_p,dummy_y_delta_q], batch_size=1, verbose=0)
             out = model.predict([x_gyro, x_acc], batch_size=1, verbose=0)
 
-        yhat_delta_p, yhat_delta_q = out[0], out[1]
-        gt_trajectory = generate_trajectory_6d_quat(init_p, init_q, y_delta_p, y_delta_q)
-        pred_trajectory = generate_trajectory_6d_quat(init_p, init_q, yhat_delta_p, yhat_delta_q)
+        yhat_delta_p = out
+        gt_trajectory = generate_trajectory_from_delta_pos(init_p, y_delta_p)
+        pred_trajectory = generate_trajectory_from_delta_pos(init_p, yhat_delta_p)
 
         if args.dataset == 'oxiod':
             pred_trajectory = pred_trajectory[0:200, :]

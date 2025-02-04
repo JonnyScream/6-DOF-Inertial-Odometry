@@ -2,6 +2,16 @@ import numpy as np
 import quaternion
 import plotly.graph_objects as go
 
+def generate_trajectory_from_delta_pos(init_p,y_delta_p):
+    cur_p = np.array(init_p)
+    pred_p = []
+    pred_p.append(np.array(cur_p))
+
+    for delta_p in y_delta_p:
+        cur_p = cur_p + delta_p
+        pred_p.append(np.array(cur_p))
+
+    return np.reshape(pred_p, (len(pred_p), 3))
 
 def generate_trajectory_6d_quat(init_p, init_q, y_delta_p, y_delta_q):
     cur_p = np.array(init_p)

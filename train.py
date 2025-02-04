@@ -125,7 +125,7 @@ def main():
     train_model = load_model('model_checkpoint.hdf5', custom_objects={'CustomMultiLossLayer':CustomMultiLossLayer}, compile=False)
 
     pred_model = create_pred_model_6d_quat(window_size)
-    pred_model.set_weights(train_model.get_weights()[:-2])
+    pred_model.set_weights(train_model.get_weights()[:-1])
     pred_model.save('%s.hdf5' % args.output)
 
     plt.plot(history.history['loss'])

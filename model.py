@@ -45,7 +45,7 @@ class CustomMultiLossLayer(Layer):
         # initialise log_vars
         self.log_vars = []
         for i in range(self.nb_outputs):
-            self.log_vars += [self.add_weight(name='log_var' + str(i), shape=(2,),
+            self.log_vars += [self.add_weight(name='log_var' + str(i), shape=(1,),
                                               initializer=Constant(0.), trainable=True)]
         super(CustomMultiLossLayer, self).build(input_shape)
 
@@ -57,8 +57,7 @@ class CustomMultiLossLayer(Layer):
         #    precision = K.exp(-log_var[0])
         #    loss += K.sum(precision * (y_true - y_pred)**2., -1) + log_var[0]
 
-        precision = K.exp(-self.log_vars[0][0])
-        loss += precision * mean_absolute_error(ys_true[0], ys_pred[0]) + self.log_vars[0][1]
+        loss = mean_absolute_error(ys_true[0], ys_pred[0])
 
         return K.mean(loss)
 

@@ -1,9 +1,10 @@
 import argparse
 import numpy as np
+import os
 
 from keras.models import load_model
 from sklearn.preprocessing import MinMaxScaler
-from sklearn.externals import joblib
+# from sklearn.externals import joblib
 
 from dataset import *
 from util import *
@@ -11,8 +12,8 @@ from model import *
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument('dataset', choices=['oxiod', 'euroc'], help='Training dataset name (\'oxiod\' or \'euroc\')')
-    parser.add_argument('model', help='Model path')
+    parser.add_argument('--dataset', choices=['oxiod', 'euroc'], help='Training dataset name (\'oxiod\' or \'euroc\')')
+    parser.add_argument('--model', help='Model path')
     args = parser.parse_args()
 
     model = load_model(args.model)
@@ -54,6 +55,10 @@ def main():
         gt_data_filenames.append('V1_01_easy/mav0/state_groundtruth_estimate0/data.csv')
 
     for (cur_imu_data_filename, cur_gt_data_filename) in zip(imu_data_filenames, gt_data_filenames):
+        output_dir = './plots_folder'
+        os.makedirs(output_dir, exist_ok=True)
+        fig_path = os.path.join(output_dir, cur_imu_data_filename.split('/')[0] + ".html")
+		
         if args.dataset == 'oxiod':
             gyro_data, acc_data, pos_data, ori_data = load_oxiod_dataset(cur_imu_data_filename, cur_gt_data_filename)
         elif args.dataset == 'euroc':
@@ -74,8 +79,8 @@ def main():
             gt_trajectory = gt_trajectory[0:200, :]
 
         trajectory_rmse = np.sqrt(np.mean(np.square(np.linalg.norm(pred_trajectory - gt_trajectory, axis=-1))))
-
-        print('Trajectory RMSE, sequence %s: %f' % (cur_imu_data_filename, trajectory_rmse))
+        print('Trajectory RMSE, sequence %s: %f' % (cur_imu_data_filename.split('/')[0], trajectory_rmse))
+        plot_traj(gt_trajectory, pred_trajectory, fig_path, cur_imu_data_filename.split('/')[0])
 
 if __name__ == '__main__':
     main()

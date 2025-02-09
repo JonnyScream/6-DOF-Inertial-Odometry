@@ -16,8 +16,8 @@ from util import *
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument('dataset', choices=['oxiod', 'euroc'], help='Training dataset name (\'oxiod\' or \'euroc\')')
-    parser.add_argument('output', help='Model output name')
+    parser.add_argument('--dataset', choices=['oxiod', 'euroc'], help='Training dataset name (\'oxiod\' or \'euroc\')')
+    parser.add_argument('--output', help='Model output name')
     args = parser.parse_args()
 
     np.random.seed(0)

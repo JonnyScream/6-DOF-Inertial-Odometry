@@ -2,7 +2,7 @@ import tfquaternion as tfq
 import tensorflow as tf
 
 from keras.models import Sequential, Model
-from keras.layers import Bidirectional, LSTM, CuDNNLSTM, Dropout, Dense, Input, Layer, Conv1D, MaxPooling1D, concatenate
+from keras.layers import Bidirectional, LSTM, Dropout, Dense, Input, Layer, Conv1D, MaxPooling1D, concatenate
 from keras.initializers import Constant
 from keras.optimizers import Adam
 from keras.losses import mean_absolute_error
@@ -72,6 +72,12 @@ class CustomMultiLossLayer(Layer):
         # We won't actually use the output.
         return K.concatenate(inputs, -1)
 
+    def get_config(self):
+        """This method ensures the layer can be serialized correctly."""
+        config = super().get_config()
+        config.update({"nb_outputs": self.nb_outputs})
+        return config
+
 
 def create_pred_model_6d_quat(window_size=200):
     #inp = Input((window_size, 6), name='inp')
@@ -85,9 +91,9 @@ def create_pred_model_6d_quat(window_size=200):
     convB2 = Conv1D(128, 11)(convB1)
     poolB = MaxPooling1D(3)(convB2)
     AB = concatenate([poolA, poolB])
-    lstm1 = Bidirectional(CuDNNLSTM(128, return_sequences=True))(AB)
+    lstm1 = Bidirectional(LSTM(128, return_sequences=True))(AB)
     drop1 = Dropout(0.25)(lstm1)
-    lstm2 = Bidirectional(CuDNNLSTM(128))(drop1)
+    lstm2 = Bidirectional(LSTM(128))(drop1)
     drop2 = Dropout(0.25)(lstm2)    
     y1_pred = Dense(3)(drop2)
     y2_pred = Dense(4)(drop2)
@@ -127,9 +133,9 @@ def create_pred_model_3d(window_size=200):
     convB2 = Conv1D(128, 11)(convB1)
     poolB = MaxPooling1D(3)(convB2)
     AB = concatenate([poolA, poolB])
-    lstm1 = Bidirectional(CuDNNLSTM(128, return_sequences=True))(AB)
+    lstm1 = Bidirectional(LSTM(128, return_sequences=True))(AB)
     drop1 = Dropout(0.25)(lstm1)
-    lstm2 = Bidirectional(CuDNNLSTM(128))(drop1)
+    lstm2 = Bidirectional(LSTM(128))(drop1)
     drop2 = Dropout(0.25)(lstm2)
     y1_pred = Dense(1)(drop2)
     y2_pred = Dense(1)(drop2)
@@ -161,9 +167,9 @@ def create_train_model_3d(pred_model, window_size=200):
 
 def create_model_6d_rvec(window_size=200):
     input_gyro_acc = Input((window_size, 6))
-    lstm1 = Bidirectional(CuDNNLSTM(128, return_sequences=True))(input_gyro_acc)    
+    lstm1 = Bidirectional(LSTM(128, return_sequences=True))(input_gyro_acc)
     drop1 = Dropout(0.25)(lstm1)
-    lstm2 = Bidirectional(CuDNNLSTM(128))(drop1)    
+    lstm2 = Bidirectional(LSTM(128))(drop1)
     drop2 = Dropout(0.25)(lstm2)    
     output_delta_rvec = Dense(3)(drop2)
     output_delta_tvec = Dense(3)(drop2)
@@ -177,9 +183,9 @@ def create_model_6d_rvec(window_size=200):
 
 def create_model_6d_quat(window_size=200):
     input_gyro_acc = Input((window_size, 6))
-    lstm1 = Bidirectional(CuDNNLSTM(128, return_sequences=True))(input_gyro_acc)    
+    lstm1 = Bidirectional(LSTM(128, return_sequences=True))(input_gyro_acc)
     drop1 = Dropout(0.25)(lstm1)
-    lstm2 = Bidirectional(CuDNNLSTM(128))(drop1)    
+    lstm2 = Bidirectional(LSTM(128))(drop1)
     drop2 = Dropout(0.25)(lstm2)    
     output_delta_p = Dense(3)(drop2)
     output_delta_q = Dense(4)(drop2)
@@ -195,9 +201,9 @@ def create_model_6d_quat(window_size=200):
 
 def create_model_3d(window_size=200):
     input_gyro_acc = Input((window_size, 6))
-    lstm1 = Bidirectional(CuDNNLSTM(128, return_sequences=True))(input_gyro_acc)    
+    lstm1 = Bidirectional(LSTM(128, return_sequences=True))(input_gyro_acc)
     drop1 = Dropout(0.25)(lstm1)
-    lstm2 = Bidirectional(CuDNNLSTM(128))(drop1)    
+    lstm2 = Bidirectional(LSTM(128))(drop1)
     drop2 = Dropout(0.25)(lstm2)    
     output_delta_l = Dense(1)(drop2)
     output_delta_theta = Dense(1)(drop2)
@@ -212,9 +218,9 @@ def create_model_3d(window_size=200):
 
 def create_model_2d(window_size=200):
     input_gyro_acc = Input((window_size, 6))
-    lstm1 = Bidirectional(CuDNNLSTM(128, return_sequences=True))(input_gyro_acc)    
+    lstm1 = Bidirectional(LSTM(128, return_sequences=True))(input_gyro_acc)
     drop1 = Dropout(0.25)(lstm1)
-    lstm2 = Bidirectional(CuDNNLSTM(128))(drop1)
+    lstm2 = Bidirectional(LSTM(128))(drop1)
     drop2 = Dropout(0.25)(lstm2)    
     output_delta_l = Dense(1)(drop2)
     output_delta_psi = Dense(1)(drop2)

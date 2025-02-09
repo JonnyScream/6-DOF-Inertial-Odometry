@@ -1,0 +1,1 @@
+--batchsize 32 --epochs 1 --dataset_path C:\navigationDatasets\EuRoC --dataset euroc --output "just_pos_pc_6dofio_euroc"
